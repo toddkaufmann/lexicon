@@ -25,6 +25,11 @@ def provider_parser(subparser):
     subparser.add_argument(
         "--auth-access-secret", help="specify ACCESS_SECRET for authentication"
     )
+
+    subparser.add_argument(
+        "--auth-session-token", help="specify  AWS_SESSION_TOKEN for authentication"
+    )
+
     subparser.add_argument(
         "--private-zone",
         help=(
@@ -102,12 +107,15 @@ class Provider(BaseProvider):
         self.domain_id = None
         self.private_zone = self._get_provider_option("private_zone")
         # instantiate the client
+
+        # Q:  can session token be empty (to test) (would assume positional defaults ..)
         self.r53_client = boto3.client(
             "route53",
             aws_access_key_id=self._get_provider_option("auth_access_key")
-            or self._get_provider_option("auth_username"),
+                           or self._get_provider_option("auth_username"),
             aws_secret_access_key=self._get_provider_option("auth_access_secret")
-            or self._get_provider_option("auth_token"),
+                               or self._get_provider_option("auth_token"),
+            aws_session_token=self._get_provider_option("auth_session_token"),
         )
 
     def filter_zone(self, data):
